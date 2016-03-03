@@ -42,11 +42,12 @@ void right(){
 // that Nick mentioned may work. Even if it doesn't the code
 // for the bump sensor is pretty much the same.
 int main(){ 
+	int i;
 	int count = 0;
 	while(count < 5){
 		if(analog(0) > 0){
 			count++;
-			for(int i = 0; i < 5; i++){
+			for(i = 0; i < 5; i++){
 				backup();
 			}
 			left();
