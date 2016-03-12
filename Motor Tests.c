@@ -22,18 +22,18 @@ void backup(){
 
 void left(){
 	motor(0,-100);
-	msleep(53);
+	msleep(55);
 	ao();
 	motor(2,100);
-	msleep(53);
+	msleep(55);
 	ao();
 }
 void right(){
 	motor(0,100);
-	msleep(53);
+	msleep(55);
 	ao();
 	motor(2,-100);
-	msleep(53);
+	msleep(55);
 	ao();
 }
 
@@ -71,7 +71,7 @@ void stop(){
 }
 	
 
-//Detects an object and returns 1 for true and 0 for false
+//Detects an object in front and returns 1 for true and 0 for false
 int wallFront(){
 	if(analog_et(0) > 300){
 		return 1;
@@ -79,6 +79,30 @@ int wallFront(){
 	else{
 		return 0;
 	}
+}
+
+//Detects an object to the left and returns 1 for true and 0 for false
+int wallLeft(){
+	if(analog_et(1) > 300){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+//Detects an object to the right and returns 1 for true and 0 for false
+int wallRight(){
+	if(analog_et(2) > 300){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+int goal(){
+	return 0;
 }
 
 // I tried set_analog_pullup(0,0)
@@ -89,9 +113,18 @@ int wallFront(){
 // that Nick mentioned may work. Even if it doesn't the code
 // for the bump sensor is pretty much the same.
 int main(){ 
-	while(wallFront() == 0){
-		forward();
+	while(goal() == 0){
+		while(wallFront() == 0){
+			forward();
+		}
+		if(wallRight() == 0){
+			turnRight();
+		}
+		else if (wallLeft() == 0){
+			turnLeft();
+		}
+		else{
+			turnAround();
+		}
 	}
-	stop();
-	turnLeft();
 }
