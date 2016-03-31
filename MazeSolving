@@ -1,0 +1,196 @@
+void forward(){
+	motor(0,100);
+	msleep(25);
+	ao();
+	motor(2,100);
+	msleep(25);
+	ao();
+}
+
+void backUp(){
+	motor(0,-100);
+	msleep(50);
+	ao();
+	motor(2,-100);
+	msleep(50);
+	ao();
+}
+// Note: left() and right() may be reversed depending on
+// how the motors are plugged in. I think the left motor
+// was in motor port 0 and the right one in motor port 2,
+// so this should be correct.
+
+void left(){
+	motor(0,-100);
+	msleep(50);
+	ao();
+	motor(2,100);
+	msleep(50);
+	ao();
+}
+void right(){
+	motor(0,100);
+	msleep(50);
+	ao();
+	motor(2,-100);
+	msleep(50);
+	ao();
+}
+
+// This turns the robot to the left
+void turnLeft(){
+	int i;
+	for(i = 0; i < 6; i++){
+		left();
+	}
+}
+
+// This turns the robot to the right
+void turnRight(){
+	int i;
+	for(i = 0; i < 6; i++){
+		right();
+	}
+}
+
+// This turns the robot around to the right 180 degrees
+void turnAround(){
+	int i; 
+	for(i = 0; i < 11; i++){
+		right();
+	}
+}
+
+void stop(){
+	motor(0,-100);
+	msleep(10);
+	ao();
+	motor(2,-100);
+	msleep(10);
+	ao();
+}
+	
+
+//Detects an object in front and returns 1 for true and 0 for false
+int wallFront(){
+	if(analog_et(0) > 300){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+//Detects an object to the left and returns 1 for true and 0 for false
+int wallLeft(){
+	if(analog_et(1) > 400){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+//Detects an object to the right and returns 1 for true and 0 for false
+int wallRight(){
+	if(analog_et(2) > 400){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+int goal(){
+	return 0;
+}
+
+// I tried set_analog_pullup(0,0)
+// it may be for an older version of the KISS
+// software. 
+// I think the function 
+// analog_et(0) 
+// that Nick mentioned may work. Even if it doesn't the code
+// for the bump sensor is pretty much the same.
+int main(){ 
+	while(goal() == 0){
+		while(wallFront() == 0 && wallRight() == 1 && wallLeft() == 1){
+			forward();
+			if(digital(14) == 1){
+				int i; 
+				for(i = 0; i < 3; i++){
+					backUp();
+				}
+				for(i = 0; i < 2; i++){
+					right();
+				}
+			}
+			if(digital(15) == 1){
+				int i; 
+				for(i = 0; i < 3; i++){
+					backUp();
+				}
+				for(i = 0; i < 2; i++){
+					left();
+				}
+			}
+		}
+		stop();
+		if(wallFront() == 0 && wallRight() == 0 && wallLeft() == 0){
+			if(analog_et(3) < 100){
+				forward();
+			}
+			else if (analog_et(4) < 100){
+				turnRight();
+			}
+			else if (analog_et(5) < 100){
+				turnRight();
+			}
+			else{
+				forward();
+			}
+		}
+		if(wallFront() == 0 && wallRight() == 0){
+			if(analog_et(3) < 100){
+				forward();
+			}
+			else if (analog_et(4) < 100){
+				turnRight();
+			}
+			else{
+				forward();
+			}
+		}
+		if(wallFront() == 0 && wallLeft() == 0){
+			if(analog_et(3) < 100){
+				forward();
+			}
+			else if (analog_et(5) < 100){
+				turnLeft();
+			}
+			else{
+				forward();
+			}
+		}
+		if(wallRight() == 0 && wallLeft() == 0){
+			if(analog_et(4) < 100){
+				turnRight();
+			}
+			else if (analog_et(5) < 100){
+				turnLeft();
+			}
+			else{
+				turnRight();
+			}
+		}
+		else if (wallRight() == 0){
+			turnRight();
+		}
+		else if (wallLeft() == 0){
+			turnLeft();
+		}
+		else{
+			turnAround();
+		}
+	}
+}
