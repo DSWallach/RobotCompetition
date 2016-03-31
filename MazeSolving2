@@ -208,6 +208,7 @@ int main(){
 			turnAround();
 		}
 		
+		printf ("got to code");
 		while (analog_et(4) < 100) {
 			if ((analog_et(4) < analog_et(3)) && wallRight() == 0) {
 				turnRight();
