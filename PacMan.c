@@ -18,7 +18,7 @@ void backUp(){
 
 void pullUp(){
 	int i;
-	for(i = 0; i < 40; i++){
+	for(i = 0; i < 20; i++){
 		forward();
 	}
 }
@@ -108,100 +108,126 @@ int goal(){
 	return 0;
 }
 
-void solveMaze(){
-	if(wallFront() == 0){
-		if(digital(14) == 0){
-			backUp();
-			right();
+int solveMaze(int lastTurn){
+	if (digital(13) == 1){
+		printf("Front Bumper\n");
+		backUp();
+		backUp();
+		right();
+		return lastTurn;
+	}
+	else if(digital(14) == 0){
+		printf("Left Bumper\n");
+		backUp();
+		right();
+		backUp();
+		right();
+		return lastTurn;
+	}
+	else if(digital(15) == 0){
+		printf("Right Bumper\n");
+		backUp();
+		left();
+		backUp();
+		left();
+		return lastTurn;
+	}
+	else if(wallFront() == 0){
+		if (wallRight() == 0 && wallLeft() == 0){
+			printf("T intersection \n"); 
+			if(analog_et(3) < 100){
+				printf("PullUp\n");
+				pullUp();
+				return 2;
+			}
+			else if (analog_et(4) < 100 && lastTurn != 0){
+				printf("TurnRight\n");
+				turnRight();
+				return 0;
+			}
+			else if (analog_et(6) < 100 && lastTurn != 1){
+				printf("TurnLeft\n");
+				turnLeft();
+				return 1;
+			}
+			else{	
+				pullUp();
+				return 2;
+			}
 		}
-		else if(digital(15) == 0){
-			backUp();
-			left();
+		else if(wallRight() == 0){
+			printf(" L intersection \n");
+			if(analog_et(3) < 100){
+				printf("PullUp\n");
+				pullUp();
+				return 2;
+			}
+			else if (analog_et(4) < 100 && lastTurn != 0){
+				printf("TurnRight\n");
+				turnRight();
+				return 0;
+			}
+			else{
+				printf("PullUp\n");
+				pullUp();
+				return 2;
+			}
 		}
+		else if(wallLeft() == 0){
+			printf("_| intersection \n");
+			if(analog_et(3) < 100){
+				printf("PullUp\n");
+				pullUp();
+				return lastTurn;
+			}
+			else if (analog_et(6) < 100 && lastTurn != 1){
+				printf("TurnLeft\n");
+				turnLeft();
+				return 1;
+			}
+			else{
+				printf("PullUp\n");
+				pullUp();
+				return 2;
+			}
+		} 
 		else {
 			forward();
-		}
-	}
-	if(wallFront() != 0){
-		pullUp();
-	}
-	
-	stop();
-	if(wallFront() == 0 && wallRight() == 0 && wallLeft() == 0){
-		printf("T intersection \n"); 
-		if(analog_et(3) < 100){
-			printf("PullUp\n");
-			pullUp();
-		}
-		else if (analog_et(4) < 100){
-			printf("TurnRight\n");
-			turnRight();
-		}
-		else if (analog_et(6) < 100){
-			printf("TurnLeft\n");
-			turnLeft();
-		}
-		else{
-			
-			pullUp();
-		}
-	}
-	else if(wallFront() == 0 && wallRight() == 0){
-		printf(" L intersection \n");
-		if(analog_et(3) < 100){
-			printf("PullUp\n");
-			pullUp();
-		}
-		else if (analog_et(4) < 100){
-			printf("TurnRight\n");
-			turnRight();
-		}
-		else{
-			printf("PullUp\n");
-			pullUp();
-		}
-	}
-	else if(wallFront() == 0 && wallLeft() == 0){
-		printf("_| intersection \n");
-		if(analog_et(3) < 100){
-			printf("PullUp\n");
-			pullUp();
-		}
-		else if (analog_et(6) < 100){
-			printf("TurnLeft\n");
-			turnLeft();
-		}
-		else{
-			printf("PullUp\n");
-			pullUp();
+			return lastTurn;
 		}
 	}
 	else if(wallRight() == 0 && wallLeft() == 0){
 		printf(" -- intersection \n");
-		if(analog_et(4) < 100){
+		if(analog_et(4) < 100 && lastTurn != 0){
 			printf("TurnRight\n");
 			turnRight();
+			return 0;
 		}
-		else if (analog_et(6) < 100){
+		else if (analog_et(6) < 100 && lastTurn != 1){
 			printf("TurnLeft\n");
 			turnLeft();
+			return 1;
 		}
 		else{
 			printf("TurnRight\n");
 			turnRight();
+			return 0;
 		}
 	}
-	else if (wallRight() == 0){
+	else if (wallRight() == 0 && lastTurn != 0){
 		printf("Right intersection \n");
 		turnRight();
+		return 0;
 	}
-	else if (wallLeft() == 0){
+	else if (wallLeft() == 0 && lastTurn != 1){
 		printf(" Left intersection \n");
 		turnLeft();
+		return 1;
 	}
 	else if (wallFront() == 1 && wallRight() == 1 && wallLeft() == 1){
 		printf("Dead End \n");
 		turnAround();
+		return 4;
 	}
 }
 
@@ -215,13 +241,15 @@ int checkExit(){
 	// Value: 150 to 255
 	// printf("checkExit");
 	if (get_object_count(0) > 0){
+		printf("Number of Objects: %d\n", get_object_count(0));
 		int h = get_object_bbox(0,0).height;
 		int w = get_object_bbox(0,0).width;
 		if (h > 40 && w > 100){
 			//camera_close();
-			forward();
-			forward();
-			forward();
+			pullUp();
+			return 1;
+		} else if (get_object_count(0) > 15){
+			pullUp();
 			return 1;
 		}
 		else {
@@ -236,6 +264,7 @@ int checkExit(){
 }
 
 int main(){ 
+	int lastTurn = 2;
 	int h = 0;
 	int w = 0;
 	camera_open();
@@ -248,7 +277,7 @@ int main(){
 		}*/
 		int i;
 		for (i = 0; i < 5; i++){
-			solveMaze();
+			lastTurn = solveMaze(lastTurn);
 		}
 		if(checkExit()){
 			printf ("Exit Found!");
