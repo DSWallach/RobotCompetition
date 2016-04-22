@@ -1,6 +1,6 @@
 void forward(){
-	motor(0,100);
-	motor(2,90);
+	motor(0,98);
+	motor(2,92);
 	msleep(25);
 }
 
@@ -91,7 +91,7 @@ int wallRight(){
 }
 
 int solveMaze(int lastTurn){
-	if (digital(13) == 1){
+	if (digital(13) == 1 || digital (12) == 1){
 		printf("Front Bumper\n");
 		backUp();
 		backUp();
@@ -137,6 +137,8 @@ int solveMaze(int lastTurn){
 				return 2;
 			}
 		}
+		else if (checkExit ())
+		return 5;		
 		else if(wallRight() == 0){
 			printf(" L intersection \n");
 			if(analog_et(3) < 100){
@@ -215,32 +217,28 @@ int solveMaze(int lastTurn){
 
 
 int checkExit(){
-	//camera_open();
 	camera_update();
 	// Color config for recognizing the shiny green ball
 	// Hue: 122 to 172
 	// Saturation: 134 to 255
 	// Value: 50 to 255
 	// printf("checkExit");
-	if (get_object_count(1) > 0){
-		int h = get_object_bbox(1,0).height;
-		int w = get_object_bbox(1,0).width;
+	if (get_object_count(0) > 0){
+		int h = get_object_bbox(0,0).height;
+		int w = get_object_bbox(0,0).width;
 		printf("Number of Objects: %d\n Biggest object height: %d, width: %d\n", get_object_count(1),h,w);
-		if (h > 10 && w > 20){
-			//camera_close();
-			pullUp();
+		if ((h >= 15 && w >= 30) || (h >= 30 && w >= 15)){
+			//pullUp();
 			return 1;
-		} else if (get_object_count(1) > 15){
-			pullUp();
+			} else if (get_object_count(1) > 15){
+			//pullUp();
 			return 1;
 		}
 		else {
-			//camera_close();
 			return 0;
 		}
 	} 
 	else {
-		//camera_close();
 		return 0;
 	}
 }
@@ -258,11 +256,17 @@ int main(){
 		printf("Height: %d, Width: %d\n",h,w);
 		}*/
 		int i;
-		for (i = 0; i < 5; i++){
+		for (i = 0; i < 3; i++){
 			lastTurn = solveMaze(lastTurn);
+			if (lastTurn == 5)
+			printf ("PacMan Found!\n Firing Weapons Array\n PacMan Neutralized!");
+			break;
 		}
+		if (lastTurn == 5)
+		break;
+		forward ();
 		if(checkExit()){
-			printf ("PacMan   Found!");
+			printf ("PacMan Found!\n Firing Weapons Array\n PacMan Neutralized!");
 			break;
 		}
 	}
