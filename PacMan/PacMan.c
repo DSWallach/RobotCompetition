@@ -1,19 +1,13 @@
 void forward(){
 	motor(0,100);
+	motor(2,92);
 	msleep(25);
-	ao();
-	motor(2,100);
-	msleep(25);
-	ao();
 }
 
 void backUp(){
 	motor(0,-100);
-	msleep(50);
-	ao();
 	motor(2,-100);
-	msleep(50);
-	ao();
+	msleep(25);
 }
 
 void pullUp(){
@@ -25,20 +19,16 @@ void pullUp(){
 
 void left(){
 	motor(0,-100);
-	msleep(55);
-	ao();
 	motor(2,100);
-	msleep(55);
-	ao();
+	msleep(50);
 }
+
 void right(){
 	motor(0,100);
-	msleep(55);
-	ao();
 	motor(2,-100);
-	msleep(55);
-	ao();
+	msleep(50);
 }
+
 
 // This turns the robot to the left
 void turnLeft(){

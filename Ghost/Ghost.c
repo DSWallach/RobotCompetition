@@ -1,5 +1,7 @@
-void forward(){
-	motor(0,98);
+void forward(){//int left, int right){
+	int charge = get_create_battery_voltage ();
+	printf ("current charge: %d", charge);
+	motor(0,100);
 	motor(2,92);
 	msleep(25);
 }
@@ -101,16 +103,20 @@ int solveMaze(int lastTurn){
 	else if(digital(14) == 0){
 		printf("Left Bumper\n");
 		backUp();
+		backUp();
 		right();
 		backUp();
+		right();
 		right();
 		return lastTurn;
 	}
 	else if(digital(15) == 0){
 		printf("Right Bumper\n");
 		backUp();
+		backUp();
 		left();
 		backUp();
+		left();
 		left();
 		return lastTurn;
 	}
@@ -227,7 +233,7 @@ int checkExit(){
 		int h = get_object_bbox(0,0).height;
 		int w = get_object_bbox(0,0).width;
 		printf("Number of Objects: %d\n Biggest object height: %d, width: %d\n", get_object_count(1),h,w);
-		if ((h >= 15 && w >= 30) || (h >= 30 && w >= 15)){
+		if ((h >= 15 && w >= 23) || (h >= 23 && w >= 15)){
 			//pullUp();
 			return 1;
 			} else if (get_object_count(1) > 15){
@@ -260,6 +266,8 @@ int main(){
 			lastTurn = solveMaze(lastTurn);
 			if (lastTurn == 5)
 			printf ("PacMan Found!\n Firing Weapons Array\n PacMan Neutralized!");
+			freeze (0);
+			freeze (2);
 			break;
 		}
 		if (lastTurn == 5)
@@ -267,6 +275,8 @@ int main(){
 		forward ();
 		if(checkExit()){
 			printf ("PacMan Found!\n Firing Weapons Array\n PacMan Neutralized!");
+			freeze (0);
+			freeze (2);
 			break;
 		}
 	}
