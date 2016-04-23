@@ -92,136 +92,6 @@ int wallRight(){
 	}
 }
 
-int solveMaze(int lastTurn){
-	if (digital(13) == 1 || digital (12) == 1){
-		printf("Front Bumper\n");
-		backUp();
-		backUp();
-		right();
-		return lastTurn;
-	}
-	else if(digital(14) == 0){
-		printf("Left Bumper\n");
-		backUp();
-		backUp();
-		right();
-		backUp();
-		right();
-		right();
-		return lastTurn;
-	}
-	else if(digital(15) == 0){
-		printf("Right Bumper\n");
-		backUp();
-		backUp();
-		left();
-		backUp();
-		left();
-		left();
-		return lastTurn;
-	}
-	else if(wallFront() == 0){
-		if (wallRight() == 0 && wallLeft() == 0){
-			printf("T intersection \n"); 
-			if(analog_et(3) < 100){
-				printf("PullUp\n");
-				pullUp();
-				return 2;
-			}
-			else if (analog_et(4) < 100 && lastTurn != 0){
-				printf("TurnRight\n");
-				turnRight();
-				return 0;
-			}
-			else if (analog_et(6) < 100 && lastTurn != 1){
-				printf("TurnLeft\n");
-				turnLeft();
-				return 1;
-			}
-			else{	
-				pullUp();
-				return 2;
-			}
-		}
-		else if (checkExit ())
-		return 5;		
-		else if(wallRight() == 0){
-			printf(" L intersection \n");
-			if(analog_et(3) < 100){
-				printf("PullUp\n");
-				pullUp();
-				return 2;
-			}
-			else if (analog_et(4) < 100 && lastTurn != 0){
-				printf("TurnRight\n");
-				turnRight();
-				return 0;
-			}
-			else{
-				printf("PullUp\n");
-				pullUp();
-				return 2;
-			}
-		}
-		else if(wallLeft() == 0){
-			printf("_| intersection \n");
-			if(analog_et(3) < 100){
-				printf("PullUp\n");
-				pullUp();
-				return lastTurn;
-			}
-			else if (analog_et(6) < 100 && lastTurn != 1){
-				printf("TurnLeft\n");
-				turnLeft();
-				return 1;
-			}
-			else{
-				printf("PullUp\n");
-				pullUp();
-				return 2;
-			}
-		} 
-		else {
-			forward();
-			return lastTurn;
-		}
-	}
-	else if(wallRight() == 0 && wallLeft() == 0){
-		printf(" -- intersection \n");
-		if(analog_et(4) < 100 && lastTurn != 0){
-			printf("TurnRight\n");
-			turnRight();
-			return 0;
-		}
-		else if (analog_et(6) < 100 && lastTurn != 1){
-			printf("TurnLeft\n");
-			turnLeft();
-			return 1;
-		}
-		else{
-			printf("TurnRight\n");
-			turnRight();
-			return 0;
-		}
-	}
-	else if (wallRight() == 0 && lastTurn != 0){
-		printf("Right intersection \n");
-		turnRight();
-		return 0;
-	}
-	else if (wallLeft() == 0 && lastTurn != 1){
-		printf(" Left intersection \n");
-		turnLeft();
-		return 1;
-	}
-	else if (wallFront() == 1 && wallRight() == 1 && wallLeft() == 1){
-		printf("Dead End \n");
-		turnAround();
-		return 4;
-	}
-}
-
-
 int checkExit(){
 	camera_update();
 	// Color config for recognizing the shiny green ball
@@ -249,10 +119,187 @@ int checkExit(){
 	}
 }
 
-int main(){ 
-	int lastTurn = 2;
-	int h = 0;
-	int w = 0;
+int *solveMaze(int lastTurnDir[]){
+	// Implemented track of cardinal directions
+	// 0 = North (relative to starting position)
+	// 1 = East
+	// 2 = South
+	// 3 = West
+	int tempArray[2];
+	int *turnDir = &tempArray[0];
+	turnDir[0] = lastTurnDir[0];
+	turnDir[1] = lastTurnDir[1];
+	if (digital(13) == 1 || digital (12) == 1){
+		printf("Front Bumper\n");
+		backUp();
+		backUp();
+		right();
+		return turnDir;
+	}
+	else if(digital(14) == 0){
+		printf("Left Bumper\n");
+		backUp();
+		backUp();
+		right();
+		backUp();
+		right();
+		right();
+		return turnDir;
+	}
+	else if(digital(15) == 0){
+		printf("Right Bumper\n");
+		backUp();
+		backUp();
+		left();
+		backUp();
+		left();
+		left();
+		return turnDir;
+	}
+	else if(wallFront() == 0){
+		if (wallRight() == 0 && wallLeft() == 0){
+			printf("T intersection \n"); 
+			if(analog_et(3) < 100){
+				printf("PullUp\n");
+				pullUp();
+				turnDir[0] = 2;
+				return turnDir;
+			}
+			else if (analog_et(4) < 100 && turnDir[0] != 0){
+				printf("TurnRight\n");
+				turnRight();
+				turnDir[0] = 0;
+				turnDir[1] += 1;
+				return turnDir;
+			}
+			else if (analog_et(6) < 100 && turnDir[0] != 1){
+				printf("TurnLeft\n");
+				turnLeft();
+				turnDir[0] = 1;
+				turnDir[1] -= 1;
+				return turnDir;
+			}
+			else{	
+				pullUp();
+				turnDir[0] = 2;
+				return turnDir;
+			}
+		}
+		else if (checkExit())
+		{
+			turnDir [0] = 5;
+			return turnDir;		
+		}
+		else if(wallRight() == 0){
+			printf(" L intersection \n");
+			if(analog_et(3) < 100){
+				printf("PullUp\n");
+				pullUp();
+				turnDir[0] = 2;
+				return turnDir;
+			}
+			else if (analog_et(4) < 100 && turnDir[0] != 0){
+				printf("TurnRight\n");
+				turnRight();
+				turnDir[0] = 0;
+				turnDir[1] += 1;
+				return turnDir;
+			}
+			else{
+				printf("PullUp\n");
+				pullUp();
+				turnDir[0] = 2;
+				return turnDir;
+			}
+		}
+		else if(wallLeft() == 0){
+			printf("_| intersection \n");
+			if(analog_et(3) < 100){
+				printf("PullUp\n");
+				pullUp();
+				return turnDir;
+			}
+			else if (analog_et(6) < 100 && turnDir[0] != 1){
+				printf("TurnLeft\n");
+				turnLeft();
+				turnDir [0] = 1;
+				turnDir [1] -= 1;
+				return turnDir;
+			}
+			else{
+				printf("PullUp\n");
+				pullUp();
+				turnDir [0] = 2;
+				return turnDir;
+			}
+		} 
+		else {
+			forward();
+			return turnDir;
+		}
+	}
+	else if(wallRight() == 0 && wallLeft() == 0){
+		printf(" -- intersection \n");
+		if(analog_et(4) < 100 && turnDir[0] != 0){
+			printf("TurnRight\n");
+			turnRight();
+			turnDir [0] = 0;
+			turnDir [1] += 1;
+			return turnDir;
+		}
+		else if (analog_et(6) < 100 && turnDir[0] != 1){
+			printf("TurnLeft\n");
+			turnLeft();
+			turnDir [0] = 1;
+			turnDir [1] -= 1;
+			return turnDir;
+		}
+		else{
+			printf("TurnRight\n");
+			turnRight();
+			turnDir [0] = 0;
+			turnDir [1] += 1;
+			return turnDir;
+		}
+	}
+	else if (wallRight() == 0 && turnDir[0] != 0){
+		printf("Right intersection \n");
+		turnRight();
+		turnDir[0] = 0;
+		turnDir[1] += 1;
+		return turnDir;
+	}
+	else if (wallLeft() == 0 && turnDir[0] != 1){
+		printf(" Left intersection \n");
+		turnLeft();
+		turnDir [0] = 1;
+		turnDir [1] -= 1;
+		return turnDir;
+	}
+	else if (wallFront() == 1 && wallRight() == 1 && wallLeft() == 1){
+		printf("Dead End \n");
+		turnAround();
+		turnDir [0] = 4;
+		if (turnDir [1] < 2)
+		turnDir [1] += 2;
+		else 
+		turnDir [1] -= 2;
+		return turnDir;
+	}
+	forward ();
+	return turnDir;
+}
+
+int main(){
+	int i, 
+	j,
+	turnArray [2],
+	*tempP;
+	int pastDirArray [5] = {-1,-1,-1,-1,-1};
+	turnArray[0] = 2;
+	turnArray[1] = 0;
+	//int h = 0;
+	//int w = 0;
 	camera_open();
 	while(1){
 		/*camera_update();
@@ -261,18 +308,32 @@ int main(){
 		w = get_object_bbox(0,0).width;
 		printf("Height: %d, Width: %d\n",h,w);
 		}*/
-		int i;
 		for (i = 0; i < 3; i++){
-			lastTurn = solveMaze(lastTurn);
-			if (lastTurn == 5)
+			tempP = solveMaze(turnArray);
+			
+			turnArray [0] = tempP [0];
+			
+			if (tempP [1] == 5)
+				turnArray [1] = 0;
+			else if (tempP [1] == -1)
+				turnArray [1] = 3;
+			else
+				turnArray [1] = tempP [1];
+			
+			for (j = 4; j > -1; j--)
+				pastDirArray[j] = pastDirArray[j - 1];
+			pastDirArray [0] = turnArray [1];
+			
+			if (turnArray[0] == 5)
 			printf ("PacMan Found!\n Firing Weapons Array\n PacMan Neutralized!");
 			freeze (0);
 			freeze (2);
 			break;
 		}
-		if (lastTurn == 5)
+		if (turnArray[0] == 5)
 		break;
 		forward ();
+		
 		if(checkExit()){
 			printf ("PacMan Found!\n Firing Weapons Array\n PacMan Neutralized!");
 			freeze (0);
