@@ -1,6 +1,6 @@
 void forward(){
-	motor(0,100);
-	motor(2,92);
+	motor(0,95);
+	motor(2,100);
 	msleep(25);
 }
 
@@ -33,25 +33,28 @@ void right(){
 // This turns the robot to the left
 void turnLeft(){
 	int i;
-	for(i = 0; i < 5; i++){
+	for(i = 0; i < 8; i++){
 		left();
 	}
+	ao();
 }
 
 // This turns the robot to the right
 void turnRight(){
 	int i;
-	for(i = 0; i < 5; i++){
+	for(i = 0; i < 8; i++){
 		right();
 	}
+	ao();
 }
 
 // This turns the robot around to the right 180 degrees
 void turnAround(){
 	int i; 
-	for(i = 0; i < 11; i++){
+	for(i = 0; i < 17; i++){
 		right();
 	}
+	ao();
 }
 
 void stop(){
@@ -66,7 +69,7 @@ void stop(){
 
 //Detects an object in front and returns 1 for true and 0 for false
 int wallFront(){
-	if(analog_et(0) > 300){
+	if(analog_et(0) > 400){
 		return 1;
 	}
 	else{
@@ -101,25 +104,29 @@ int goal(){
 int solveMaze(int lastTurn){
 	if (digital(13) == 1){
 		printf("Front Bumper\n");
-		backUp();
-		backUp();
-		right();
+		int i;
+		for (i = 0; i < 3; i++) {
+			backUp();
+			right();
+		}
 		return lastTurn;
 	}
 	else if(digital(14) == 0){
 		printf("Left Bumper\n");
-		backUp();
-		right();
-		backUp();
-		right();
+		int i;
+		for (i = 0; i < 3; i++) {
+			backUp();
+			right();
+		}
 		return lastTurn;
 	}
-	else if(digital(15) == 0){
+	else if(digital(15) == 1){
 		printf("Right Bumper\n");
-		backUp();
-		left();
-		backUp();
-		left();
+		int i;
+		for (i = 0; i < 2; i++) {
+			backUp();
+			left();
+		}
 		return lastTurn;
 	}
 	else if(wallFront() == 0){
@@ -252,6 +259,7 @@ int checkExit(){
 		return 0;
 	}
 }
+
 
 int main(){ 
 	int lastTurn = 2;
