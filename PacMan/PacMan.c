@@ -132,6 +132,7 @@ int solveMaze(int lastTurn){
 	else if(wallFront() == 0){
 		if (wallRight() == 0 && wallLeft() == 0){
 			printf("T intersection \n"); 
+			stop();
 			if(analog_et(3) < 100){
 				printf("PullUp\n");
 				pullUp();
@@ -154,6 +155,7 @@ int solveMaze(int lastTurn){
 		}
 		else if(wallRight() == 0){
 			printf(" L intersection \n");
+			stop();
 			if(analog_et(3) < 100){
 				printf("PullUp\n");
 				pullUp();
@@ -171,6 +173,7 @@ int solveMaze(int lastTurn){
 			}
 		}
 		else if(wallLeft() == 0){
+			stop();
 			printf("_| intersection \n");
 			if(analog_et(3) < 100){
 				printf("PullUp\n");
@@ -194,6 +197,7 @@ int solveMaze(int lastTurn){
 		}
 	}
 	else if(wallRight() == 0 && wallLeft() == 0){
+		stop();
 		printf(" -- intersection \n");
 		if(analog_et(4) < 100 && lastTurn != 0){
 			printf("TurnRight\n");
@@ -212,11 +216,13 @@ int solveMaze(int lastTurn){
 		}
 	}
 	else if (wallRight() == 0 && lastTurn != 0){
+		stop();
 		printf("Right intersection \n");
 		turnRight();
 		return 0;
 	}
 	else if (wallLeft() == 0 && lastTurn != 1){
+		stop();
 		printf(" Left intersection \n");
 		turnLeft();
 		return 1;
