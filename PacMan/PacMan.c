@@ -105,7 +105,7 @@ int solveMaze(int lastTurn){
 	if (digital(13) == 1){
 		printf("Front Bumper\n");
 		int i;
-		for (i = 0; i < 3; i++) {
+		for (i = 0; i < 2; i++) {
 			backUp();
 			right();
 		}
@@ -114,7 +114,7 @@ int solveMaze(int lastTurn){
 	else if(digital(14) == 0){
 		printf("Left Bumper\n");
 		int i;
-		for (i = 0; i < 3; i++) {
+		for (i = 0; i < 2; i++) {
 			backUp();
 			right();
 		}
@@ -238,6 +238,7 @@ int checkExit(){
 	// Value: 150 to 255
 	// printf("checkExit");
 	if (get_object_count(0) > 0){
+		printf("Biggest Object Size: %d by %d\n", get_object_bbox(0,0).height, get_object_bbox(0,0).width);
 		printf("Number of Objects: %d\n", get_object_count(0));
 		int h = get_object_bbox(0,0).height;
 		int w = get_object_bbox(0,0).width;
@@ -245,7 +246,7 @@ int checkExit(){
 			//camera_close();
 			pullUp();
 			return 1;
-		} else if (get_object_count(0) > 15){
+		} else if (get_object_count(0) > 50){
 			pullUp();
 			return 1;
 		}
@@ -274,7 +275,7 @@ int main(){
 		printf("Height: %d, Width: %d\n",h,w);
 		}*/
 		int i;
-		for (i = 0; i < 5; i++){
+		for (i = 0; i < 1; i++){
 			lastTurn = solveMaze(lastTurn);
 		}
 		if(checkExit()){
