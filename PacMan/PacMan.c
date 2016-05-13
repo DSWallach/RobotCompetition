@@ -1,3 +1,6 @@
+int counter = 2;
+int trap = 0;
+
 void forward(){
 	motor(0,95);
 	motor(2,100);
@@ -33,6 +36,8 @@ void right(){
 // This turns the robot to the left
 void turnLeft(){
 	int i;
+	counter++;
+	printf("counter = %d", counter);
 	for(i = 0; i < 8; i++){
 		left();
 	}
@@ -42,9 +47,11 @@ void turnLeft(){
 // This turns the robot to the right
 void turnRight(){
 	int i;
+	counter++;
+	printf("counter = %d \n", counter);
 	for(i = 0; i < 8; i++){
 		right();
-	}
+		}
 	ao();
 }
 
@@ -66,11 +73,23 @@ void stop(){
 	ao();
 }
 
+void reset(){
+	if (trap == 1 && counter > 10){
+		printf("reset \n");
+		trap = 0;
+	}
+}
 
 //Detects an object in front and returns 1 for true and 0 for false
 int wallFront(){
 	if(analog_et(0) > 400){
 		return 1;
+		if (analog_et(3) < 100){
+			printf("trap \n");
+			trap = 1;
+			counter = 0;
+			printf("counter = %d \n", counter);
+		}
 	}
 	else{
 		return 0;
@@ -104,8 +123,14 @@ int goal(){
 int solveMaze(int lastTurn){
 	if (digital(13) == 1){
 		printf("Front Bumper\n");
+		if (analog_et(3) < 100) {
+			printf("trap\n");
+			 trap = 1;
+			 counter = 0;
+			 printf("counter = %d \n", counter);
+		}
 		int i;
-		for (i = 0; i < 2; i++) {
+		for (i = 0; i < 4; i++) {
 			backUp();
 			right();
 		}
@@ -133,20 +158,25 @@ int solveMaze(int lastTurn){
 		if (wallRight() == 0 && wallLeft() == 0){
 			printf("T intersection \n"); 
 			stop();
-			if(analog_et(3) < 100){
+			if(analog_et(3) < 100 && trap != 1){
 				printf("PullUp\n");
 				pullUp();
 				return 2;
 			}
-			else if (analog_et(4) < 100 && lastTurn != 0){
+			else if (analog_et(4) < 100 && lastTurn != 0 && trap != 1){
 				printf("TurnRight\n");
 				turnRight();
 				return 0;
 			}
-			else if (analog_et(6) < 100 && lastTurn != 1){
+			else if (analog_et(6) < 100 && lastTurn != 1 && trap != 1){
 				printf("TurnLeft\n");
 				turnLeft();
 				return 1;
+			}
+			else if (trap == 1 && lastTurn != 1){
+				printf("Trapped Turnright\n");
+				turnRight();
+				return 0;
 			}
 			else{	
 				pullUp();
@@ -156,13 +186,18 @@ int solveMaze(int lastTurn){
 		else if(wallRight() == 0){
 			printf(" L intersection \n");
 			stop();
-			if(analog_et(3) < 100){
+			if(analog_et(3) < 100 && trap != 1){
 				printf("PullUp\n");
 				pullUp();
 				return 2;
 			}
-			else if (analog_et(4) < 100 && lastTurn != 0){
+			else if (analog_et(4) < 100 && lastTurn != 0 && trap != 1){
 				printf("TurnRight\n");
+				turnRight();
+				return 0;
+			}
+			else if (trap = 1){
+				printf("Trapped TurnRight\n");
 				turnRight();
 				return 0;
 			}
@@ -175,16 +210,21 @@ int solveMaze(int lastTurn){
 		else if(wallLeft() == 0){
 			stop();
 			printf("_| intersection \n");
-			if(analog_et(3) < 100){
+			if(analog_et(3) < 100 && trap != 1){
 				printf("PullUp\n");
 				pullUp();
 				return lastTurn;
 			}
-			else if (analog_et(6) < 100 && lastTurn != 1){
+			else if (analog_et(6) < 100 && lastTurn != 1 && trap != 1){
 				printf("TurnLeft\n");
 				turnLeft();
 				return 1;
 			}
+			/*else if (trap == 1){
+				printf("Trapped PullUpt\n");
+				pullUp();
+				return 1;
+			}*/
 			else{
 				printf("PullUp\n");
 				pullUp();
@@ -199,16 +239,21 @@ int solveMaze(int lastTurn){
 	else if(wallRight() == 0 && wallLeft() == 0){
 		stop();
 		printf(" -- intersection \n");
-		if(analog_et(4) < 100 && lastTurn != 0){
+		if(analog_et(4) < 100 && lastTurn != 0 && trap != 0){
 			printf("TurnRight\n");
 			turnRight();
 			return 0;
 		}
-		else if (analog_et(6) < 100 && lastTurn != 1){
+		else if (analog_et(6) < 100 && lastTurn != 1 && trap != 0){
 			printf("TurnLeft\n");
 			turnLeft();
 			return 1;
 		}
+		/*else if (trap = 1){
+			printf("turnRight\n");
+			turnRight();
+			counter++
+			return 0;*/
 		else{
 			printf("TurnRight\n");
 			turnRight();
@@ -229,6 +274,11 @@ int solveMaze(int lastTurn){
 	}
 	else if (wallFront() == 1 && wallRight() == 1 && wallLeft() == 1){
 		printf("Dead End \n");
+		if (analog_et(3) < 100){
+			trap = 1;
+			counter = 0;
+			printf("Trapped \n");
+		}
 		turnAround();
 		return 4;
 	}
@@ -284,10 +334,11 @@ int main(){
 		for (i = 0; i < 1; i++){
 			lastTurn = solveMaze(lastTurn);
 		}
+		reset();
 		if(checkExit()){
 			printf ("Exit Found!");
 			break;
 		}
 	}
 	camera_close();
-}
+}	
