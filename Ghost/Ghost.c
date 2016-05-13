@@ -1,8 +1,8 @@
 void forward(){//int left, int right){
-	int charge = get_create_battery_voltage ();
-	printf ("current charge: %d", charge);
+	/*int charge = get_create_battery_voltage ();
+	printf ("current charge: %d", charge);*/
 	motor(0,100);
-	motor(2,92);
+	motor(2,100);
 	msleep(25);
 }
 
@@ -103,11 +103,15 @@ int checkExit(){
 		int h = get_object_bbox(0,0).height;
 		int w = get_object_bbox(0,0).width;
 		printf("Number of Objects: %d\n Biggest object height: %d, width: %d\n", get_object_count(1),h,w);
-		if ((h >= 15 && w >= 23) || (h >= 23 && w >= 15)){
+		if ((h >= 30 && w >= 20) || (h >= 20 && w >= 30))
+		{
 			//pullUp();
 			return 1;
-			} else if (get_object_count(1) > 15){
-			//pullUp();
+		} 
+		else if ((h >= 20 && w >= 10) || (h >= 10 && w >= 20))
+		{
+			pullUp();
+			printf ("Heaading to target\n");
 			return 1;
 		}
 		else {
@@ -133,7 +137,8 @@ int *solveMaze(int lastTurnDir[]){
 		printf("Front Bumper\n");
 		backUp();
 		backUp();
-		right();
+		backUp();
+		turnRight();
 		return turnDir;
 	}
 	else if(digital(14) == 0){
@@ -298,30 +303,29 @@ int main(){
 	int pastDirArray [5] = {-1,-1,-1,-1,-1};
 	turnArray[0] = 2;
 	turnArray[1] = 0;
-	//int h = 0;
-	//int w = 0;
+	int h = 0;
+	int w = 0;
 	camera_open();
 	while(1){
-		/*camera_update();
+		camera_update();
 		if (get_object_count(0) > 0){
 		h = get_object_bbox(0,0).height;
 		w = get_object_bbox(0,0).width;
-		printf("Height: %d, Width: %d\n",h,w);
-		}*/
+		}
 		for (i = 0; i < 3; i++){
 			tempP = solveMaze(turnArray);
 			
 			turnArray [0] = tempP [0];
 			
 			if (tempP [1] == 5)
-				turnArray [1] = 0;
+			turnArray [1] = 0;
 			else if (tempP [1] == -1)
-				turnArray [1] = 3;
+			turnArray [1] = 3;
 			else
-				turnArray [1] = tempP [1];
+			turnArray [1] = tempP [1];
 			
 			for (j = 4; j > -1; j--)
-				pastDirArray[j] = pastDirArray[j - 1];
+			pastDirArray[j] = pastDirArray[j - 1];
 			pastDirArray [0] = turnArray [1];
 			
 			if (turnArray[0] == 5)
@@ -342,4 +346,5 @@ int main(){
 		}
 	}
 	camera_close();
+	return 0;
 }
